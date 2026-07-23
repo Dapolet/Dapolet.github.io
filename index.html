@@ -1,0 +1,464 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Dapolet</title>
+<meta name="description" content="Dapolet — builder of small, useful things: Telegram bots, scripts. Python, Docker, Bash.">
+<meta name="color-scheme" content="dark light">
+<meta name="theme-color" content="#0d1016">
+<meta name="robots" content="index, follow">
+
+<meta property="og:type" content="website">
+<meta property="og:title" content="Dapolet">
+<meta property="og:description" content="Builder of small, useful things — bots, scripts.">
+<meta property="og:image" content="https://avatars.githubusercontent.com/u/88351235?v=4">
+<meta name="twitter:card" content="summary">
+<meta name="twitter:title" content="Dapolet">
+<meta name="twitter:description" content="Builder of small, useful things — bots, scripts.">
+<meta name="twitter:image" content="https://avatars.githubusercontent.com/u/88351235?v=4">
+
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect width='100' height='100' rx='20' fill='%230d1016'/%3E%3Ctext x='50' y='68' font-size='58' font-family='monospace' font-weight='700' fill='%23ff9f43' text-anchor='middle'%3E%3E_%3C/text%3E%3C/svg%3E">
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;700;800&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg: #0d1016;
+    --surface: #151a23;
+    --surface-2: #1c2330;
+    --line: #2a3242;
+    --text: #e9e7de;
+    --text-dim: #8b93a3;
+    --amber: #ff9f43;
+    --amber-dim: #7a5a2e;
+    --teal: #5eead4;
+    --python: #3572A5;
+    --docker: #2496ED;
+    --bash: #4EAA25;
+    --html: #E34F26;
+    --md: #6a7280;
+  }
+
+  :root[data-theme="light"]{
+    --bg: #f6f4ee;
+    --surface: #ffffff;
+    --surface-2: #efece2;
+    --line: #ddd8c9;
+    --text: #1c1f26;
+    --text-dim: #5b6270;
+    --amber: #d97a2b;
+    --amber-dim: #ecc79a;
+    --teal: #0f9d8f;
+  }
+
+  *{ margin:0; padding:0; box-sizing:border-box; }
+
+  html{ scroll-behavior:smooth; }
+
+  body{
+    background:
+      radial-gradient(ellipse 900px 500px at 15% -10%, rgba(255,159,67,0.07), transparent 60%),
+      radial-gradient(ellipse 700px 500px at 100% 10%, rgba(94,234,212,0.05), transparent 55%),
+      var(--bg);
+    color: var(--text);
+    font-family: 'Inter', sans-serif;
+    line-height: 1.6;
+    min-height: 100vh;
+    transition: background-color .25s ease, color .25s ease;
+  }
+
+  ::selection{ background: var(--amber); color: #0d1016; }
+
+  a{ color: inherit; }
+
+  .wrap{
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 0 24px;
+  }
+
+  /* ---------- NAV ---------- */
+  nav{
+    position: sticky; top:0; z-index: 10;
+    background: rgba(13,16,22,0.85);
+    backdrop-filter: blur(10px);
+    border-bottom: 1px solid var(--line);
+  }
+  nav .wrap{
+    display:flex; align-items:center; justify-content:space-between;
+    height: 56px;
+  }
+  .brand{
+    font-family:'JetBrains Mono', monospace;
+    font-weight:700; font-size:14px; letter-spacing:0.5px;
+    color: var(--text);
+  }
+  .brand span{ color: var(--amber); }
+  .nav-right{ display:flex; align-items:center; gap:20px; }
+  .navlinks{ display:flex; gap:22px; font-family:'JetBrains Mono', monospace; font-size:13px; }
+  .navlinks a{ color: var(--text-dim); text-decoration:none; transition: color .15s; position:relative; }
+  .navlinks a:hover, .navlinks a:focus-visible{ color: var(--amber); outline: none; }
+  .navlinks a.active{ color: var(--amber); }
+  .navlinks a.active::after{
+    content:""; position:absolute; left:0; right:0; bottom:-18px;
+    height:2px; background: var(--amber);
+  }
+
+  .theme-toggle{
+    width: 30px; height: 30px;
+    display:flex; align-items:center; justify-content:center;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    color: var(--text-dim);
+    font-size: 14px;
+    cursor: pointer;
+    transition: border-color .15s, color .15s;
+  }
+  .theme-toggle:hover, .theme-toggle:focus-visible{ border-color: var(--amber-dim); color: var(--amber); outline: none; }
+
+  .sr-only{
+    position: absolute; width: 1px; height: 1px;
+    padding: 0; margin: -1px; overflow: hidden;
+    clip: rect(0,0,0,0); white-space: nowrap; border: 0;
+  }
+
+  .term-line.echoed{ opacity: 0; animation: fadein .3s ease forwards; }
+  @keyframes fadein{ to{ opacity:1; } }
+
+  /* ---------- HERO / TERMINAL ---------- */
+  header.hero{ padding: 64px 0 40px; }
+
+  .terminal{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 20px 60px -20px rgba(0,0,0,0.6);
+  }
+  .term-bar{
+    display:flex; align-items:center; gap:8px;
+    padding: 10px 14px;
+    background: var(--surface-2);
+    border-bottom: 1px solid var(--line);
+  }
+  .dot{ width:11px; height:11px; border-radius:50%; }
+  .dot.red{ background:#ff5f57; }
+  .dot.yellow{ background:#febc2e; }
+  .dot.green{ background:#28c840; }
+  .term-title{
+    margin-left: 8px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  .term-body{
+    padding: 24px 22px 28px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 14.5px;
+  }
+  .term-line{ display:flex; gap:10px; margin-bottom: 6px; flex-wrap: wrap; }
+  .prompt{ color: var(--teal); flex-shrink:0; }
+  .cmd{ color: var(--text); }
+  .out{ color: var(--text-dim); margin: 2px 0 14px 0; }
+  .out .hl{ color: var(--amber); font-weight: 700; }
+  .cursor{
+    display:inline-block; width: 8px; height: 16px;
+    background: var(--amber); vertical-align: text-bottom;
+    animation: blink 1s steps(1) infinite;
+  }
+  @keyframes blink{ 50%{ opacity:0; } }
+
+  .typed-name{
+    font-size: 34px; font-weight: 800; color: var(--text);
+    letter-spacing: -0.5px;
+  }
+  .typed-name .amber{ color: var(--amber); }
+
+  .tagline{
+    margin-top: 6px;
+    color: var(--text-dim);
+    font-size: 15px;
+  }
+
+  /* ---------- SECTIONS ---------- */
+  section{ padding: 52px 0; border-top: 1px solid var(--line); }
+  header.hero + section { border-top: none; }
+
+  .eyebrow{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--amber);
+    text-transform: lowercase;
+    letter-spacing: 0.5px;
+    margin-bottom: 10px;
+  }
+  .eyebrow::before{ content: "// "; color: var(--text-dim); }
+
+  h2{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 22px;
+    font-weight: 700;
+    margin-bottom: 18px;
+  }
+
+  .about-text{
+    color: var(--text-dim);
+    font-size: 16px;
+    max-width: 62ch;
+  }
+  .about-text strong{ color: var(--text); font-weight: 600; }
+
+  /* ---------- STACK ---------- */
+  .stack{
+    display:flex; flex-wrap: wrap; gap: 10px;
+    margin-top: 6px;
+  }
+  .chip{
+    display:flex; align-items:center; gap:8px;
+    padding: 8px 14px;
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 7px;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px;
+    color: var(--text);
+    transition: border-color .15s, transform .15s;
+  }
+  .chip:hover{ border-color: var(--amber-dim); transform: translateY(-1px); }
+  .chip .sw{ width:9px; height:9px; border-radius:50%; flex-shrink:0; }
+
+  /* ---------- PROJECTS ---------- */
+  .projects{
+    display:grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+  }
+  @media (max-width: 620px){ .projects{ grid-template-columns: 1fr; } }
+
+  .card{
+    background: var(--surface);
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    padding: 18px 18px 16px;
+    text-decoration: none;
+    display:flex; flex-direction:column;
+    transition: border-color .18s, transform .18s, box-shadow .18s;
+  }
+  .card:hover, .card:focus-visible{
+    border-color: var(--amber-dim);
+    transform: translateY(-2px);
+    box-shadow: 0 14px 30px -18px rgba(255,159,67,0.35);
+    outline: none;
+  }
+  .card-top{ display:flex; align-items:center; justify-content:space-between; margin-bottom:10px; }
+  .card-name{
+    font-family:'JetBrains Mono', monospace;
+    font-weight: 700; font-size: 15px; color: var(--text);
+  }
+  .card-icon{ color: var(--text-dim); font-size: 13px; }
+  .card-desc{
+    color: var(--text-dim); font-size: 13.5px; flex-grow:1; margin-bottom: 14px;
+  }
+  .card-meta{
+    display:flex; align-items:center; gap:14px;
+    font-family:'JetBrains Mono', monospace; font-size: 12px; color: var(--text-dim);
+  }
+  .card-meta .lang{ display:flex; align-items:center; gap:6px; }
+  .lang-dot{ width:9px; height:9px; border-radius:50%; }
+
+  /* ---------- CONTACT ---------- */
+  .contact-row{
+    display:flex; flex-wrap:wrap; gap: 12px; margin-top: 8px;
+  }
+  .btn{
+    font-family:'JetBrains Mono', monospace;
+    font-size: 13px;
+    padding: 11px 18px;
+    border-radius: 7px;
+    text-decoration: none;
+    border: 1px solid var(--line);
+    color: var(--text);
+    transition: border-color .15s, color .15s, background .15s;
+  }
+  .btn.primary{
+    background: var(--amber);
+    color: #14100a;
+    border-color: var(--amber);
+    font-weight: 700;
+  }
+  .btn.primary:hover{ background: #ffb066; }
+  .btn:not(.primary):hover{ border-color: var(--amber-dim); color: var(--amber); }
+
+  footer{
+    padding: 28px 0 48px;
+    text-align:center;
+    font-family:'JetBrains Mono', monospace;
+    font-size: 12px;
+    color: var(--text-dim);
+  }
+  footer .amber{ color: var(--amber); }
+
+  @media (max-width: 480px){
+    .navlinks{ gap: 14px; font-size: 12px; }
+    .brand{ font-size: 13px; }
+    .typed-name{ font-size: 26px; }
+    .term-body{ padding: 20px 16px 24px; font-size: 13.5px; }
+    h2{ font-size: 19px; }
+  }
+
+  @media (prefers-reduced-motion: reduce){
+    .cursor{ animation: none; }
+    html{ scroll-behavior: auto; }
+  }
+</style>
+
+<script type="application/ld+json">
+{
+  "@context": "https://schema.org",
+  "@type": "Person",
+  "name": "Dapolet",
+  "description": "Builder of small, useful things — Telegram bots, scripts.",
+  "url": "https://github.com/Dapolet",
+  "sameAs": ["https://github.com/Dapolet"],
+  "knowsAbout": ["Python", "Docker", "Bash", "Telegram Bots"]
+}
+</script>
+</head>
+<body>
+
+<nav>
+  <div class="wrap">
+    <div class="brand">~/<span>dapolet</span></div>
+    <div class="navlinks">
+      <a href="#about">about</a>
+      <a href="#stack">stack</a>
+      <a href="#projects">projects</a>
+      <a href="#contact">contact</a>
+    </div>
+  </div>
+</nav>
+
+<header class="hero">
+  <div class="wrap">
+    <div class="terminal">
+      <div class="term-bar">
+        <div class="dot red"></div><div class="dot yellow"></div><div class="dot green"></div>
+        <div class="term-title">dapolet@github: ~</div>
+      </div>
+      <div class="term-body">
+        <div class="term-line"><span class="prompt">$</span><span class="cmd">whoami</span></div>
+        <div class="typed-name">Dapolet<span class="cursor"></span></div>
+        <div class="tagline">💻 Bein' Chillin</div>
+
+        <div class="term-line" style="margin-top:22px;"><span class="prompt">$</span><span class="cmd">cat about.md</span></div>
+        <div class="out">Builder of small, useful things — <span class="hl">bots</span>, <span class="hl">scripts</span>. Comfortable in a terminal, calm about deadlines.</div>
+      </div>
+    </div>
+  </div>
+</header>
+
+<section id="about">
+  <div class="wrap">
+    <div class="eyebrow">about</div>
+    <h2>Sup, I'm Dapolet</h2>
+    <p class="about-text">
+      I write code that automates the small stuff — <strong>Telegram bots</strong>, quick utilities, and experiments
+      with AI assistants. I'd rather ship something simple that works than something impressive that doesn't.
+      Most of what I build starts as "wouldn't it be nice if..." and ends up as a repo on GitHub.
+    </p>
+  </div>
+</section>
+
+<section id="stack">
+  <div class="wrap">
+    <div class="eyebrow">tech stack</div>
+    <h2>What I build with</h2>
+    <div class="stack">
+      <div class="chip"><span class="sw" style="background:var(--python)"></span>Python</div>
+      <div class="chip"><span class="sw" style="background:var(--docker)"></span>Docker</div>
+      <div class="chip"><span class="sw" style="background:var(--bash)"></span>Bash</div>
+      <div class="chip"><span class="sw" style="background:var(--html)"></span>HTML5</div>
+      <div class="chip"><span class="sw" style="background:var(--md)"></span>Markdown</div>
+    </div>
+  </div>
+</section>
+
+<section id="projects">
+  <div class="wrap">
+    <div class="eyebrow">projects</div>
+    <h2>A few repos</h2>
+    <div class="projects">
+
+      <a class="card" href="https://github.com/Dapolet/WeatherBot" target="_blank" rel="noopener">
+        <div class="card-top">
+          <div class="card-name">WeatherBot</div>
+          <div class="card-icon">↗</div>
+        </div>
+        <div class="card-desc">Telegram weather bot — quick forecasts, straight in your chat.</div>
+        <div class="card-meta">
+          <div class="lang"><span class="lang-dot" style="background:var(--python)"></span>Python</div>
+          <div>★ 1</div>
+        </div>
+      </a>
+
+      <a class="card" href="https://github.com/Dapolet/SlotsBot" target="_blank" rel="noopener">
+        <div class="card-top">
+          <div class="card-name">SlotsBot</div>
+          <div class="card-icon">↗</div>
+        </div>
+        <div class="card-desc">A slots game bot, built for fun and a bit of chaos.</div>
+        <div class="card-meta">
+          <div class="lang"><span class="lang-dot" style="background:var(--python)"></span>Python</div>
+          <div>★ 1</div>
+        </div>
+      </a>
+
+      <a class="card" href="https://github.com/Dapolet/AVA" target="_blank" rel="noopener">
+        <div class="card-top">
+          <div class="card-name">AVA</div>
+          <div class="card-icon">↗</div>
+        </div>
+        <div class="card-desc">Web AI assistant designed to make everyday tasks a little easier.</div>
+        <div class="card-meta">
+          <div class="lang"><span class="lang-dot" style="background:var(--python)"></span>Python</div>
+          <div>★ 1</div>
+        </div>
+      </a>
+
+      <a class="card" href="https://github.com/Dapolet" target="_blank" rel="noopener">
+        <div class="card-top">
+          <div class="card-name">Dapolet</div>
+          <div class="card-icon">↗</div>
+        </div>
+        <div class="card-desc">Profile README — the source for everything on this page.</div>
+        <div class="card-meta">
+          <div class="lang"><span class="lang-dot" style="background:var(--md)"></span>Markdown</div>
+          <div>★ —</div>
+        </div>
+      </a>
+
+    </div>
+  </div>
+</section>
+
+<section id="contact">
+  <div class="wrap">
+    <div class="eyebrow">contact</div>
+    <h2>Let's talk</h2>
+    <p class="about-text">Find the code, follow along, or just say hey.</p>
+    <div class="contact-row">
+      <a class="btn primary" href="https://github.com/Dapolet" target="_blank" rel="noopener">View GitHub →</a>
+      <a class="btn" href="https://github.com/Dapolet?tab=repositories" target="_blank" rel="noopener">All repositories</a>
+    </div>
+  </div>
+</section>
+
+<footer>
+  built by <span class="amber">Dapolet</span> · 💻 Bein' Chillin
+</footer>
+
+</body>
+</html>
